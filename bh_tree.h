@@ -14,6 +14,7 @@ struct node_t {
 // Actions on individual nodes
 
 node new_node();
+void free_node();
 int has_children(node n);
 void set_bounds(node n);
 

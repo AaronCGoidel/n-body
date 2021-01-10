@@ -20,6 +20,18 @@ node new_node() {
 }
 
 /*
+ * Recursively free node and its children
+ */
+void free_node(node n) {
+  if (has_children(n)) {
+    for (int i = 0; i < NUM_KIDS; i++) {
+      free_node(n->children[i]);
+    }
+    free(n->children);
+  }
+}
+
+/*
  * Check if the given node has any children
  * Returns 1 iff yes, 0 otherwise
  */
