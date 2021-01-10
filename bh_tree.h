@@ -7,6 +7,8 @@ struct node_t {
   particle particle;
   node* children;
   vector min, max;  // bounds for close neighbors
+  vector com;       // center of mass
+  double mass;
 };
 
 // Actions on individual nodes

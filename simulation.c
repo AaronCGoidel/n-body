@@ -4,13 +4,8 @@
 #include "bh_tree.h"
 
 int main() {
-  printf("foo\n");
-  node root = malloc(sizeof(node));
-  printf("%d\n", has_children(root));
-  root->children = malloc(NUM_KIDS * sizeof(node));
-  printf("%d\n", has_children(root));
-  for (int i = 0; i < NUM_KIDS; i++) {
-    root->children[i] = new_node();
-    printf("%d\n", has_children(root->children[i]));
-  }
+  node root = new_node();
+  particle p1 = new_particle();
+
+  add_to_tree(p1, root);
 }

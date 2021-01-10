@@ -5,12 +5,14 @@
 const int NUM_KIDS = 4;
 
 /*
- *Creates a new node for the Barnes Hut tree
+ * Creates a new node for the Barnes Hut tree
  */
 node new_node() {
   node new = malloc(sizeof(struct node_t));
   new->children = NULL;
   new->particle = NULL;
+  new->mass = 0;
+  new->com = NULL;
 
   return new;
 }
@@ -31,8 +33,8 @@ int has_children(node n) {
 void set_bounds(node n) {
   struct vec_t min = *n->min;
   struct vec_t max = *n->max;
-  float x_avg = (min.x + max.x) / 2;
-  float y_avg = (min.y + max.y) / 2;
+  double x_avg = (min.x + max.x) / 2;
+  double y_avg = (min.y + max.y) / 2;
 
   // bounds for first child
   n->children[0]->min->x = min.x;
@@ -65,8 +67,8 @@ void set_bounds(node n) {
 node find_subtree(particle particle, node root) {
   vector pos = particle->pos;
   int target = 3;
-  float x_avg = (root->min->x + root->max->x) / 2;
-  float y_avg = (root->min->y + root->max->y) / 2;
+  double x_avg = (root->min->x + root->max->x) / 2;
+  double y_avg = (root->min->y + root->max->y) / 2;
 
   if (pos->x <= x_avg && pos->y <= y_avg) {
     target = 0;
@@ -104,4 +106,56 @@ void add_to_tree(particle new_particle, node root) {
     node loc = find_subtree(new_particle, root);
     add_to_tree(new_particle, loc);
   }
+}
+
+/*
+ * Recursively calculates the mass of the given node
+ */
+double find_mass_of_node(node root) {
+  if (has_children(root)) {
+    for (int i = 0; i < NUM_KIDS; i++) {
+      root->mass += find_mass_of_node(root->children[i]);
+    }
+  } else {
+    root->mass = root->particle->mass;
+  }
+  return root->mass;
+}
+
+/*
+ * Calculates the center of mass for each node in the given tree
+ */
+vector find_com(node root) {
+  vector com = new_vec();
+
+  if (has_children(root)) {
+    root->com = com;
+
+    double mass = 0;
+    for (int i = 0; i < NUM_KIDS; i++) {
+      if (root->children[i]->particle != NULL) {
+        vector child_com = find_com(root->children[i]);
+        root->com->x += (child_com->x) * root->children[i]->mass;
+        root->com->y += (child_com->y) * root->children[i]->mass;
+
+        mass += root->children[i]->mass;
+      }
+    }
+    scale(root->com, 1 / mass);
+  } else {
+    com->x = root->particle->pos->x;
+    com->y = root->particle->pos->y;
+
+    root->com = com;
+  }
+
+  return root->com;
+}
+
+/*
+ * Updates masses for each node in tree with the given root
+ */
+void update_com(node root) {
+  root->mass = find_mass_of_node(root);
+  root->com = find_com(root);
 }
