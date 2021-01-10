@@ -1,19 +1,4 @@
-/* ========================
- * Vector
- =========================*/
-// A simple 2D vector with x and y values
-typedef struct vec_t* vector;
-struct vec_t {
-  double x;
-  double y;
-};
-
-vector new_vec();
-void scale(vector v, double scalar);
-
-/* ========================
- * Particle
- =========================*/
+#include "util.h"
 
 // A particle in the universe
 typedef struct particle_t* particle;
@@ -23,6 +8,7 @@ struct particle_t {
   vector pos;
   vector vel;
   vector acc;
+  vector force;
 };
 
 particle new_particle();

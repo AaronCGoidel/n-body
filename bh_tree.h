@@ -21,3 +21,6 @@ void set_bounds(node n);
 
 node find_subtree(particle particle, node root);
 void add_to_tree(particle new_particle, node root);
+void update_com(node root);
+
+void approximate_force(particle particle, node root);

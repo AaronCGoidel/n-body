@@ -3,6 +3,8 @@
 #include <stdlib.h>
 
 const int NUM_KIDS = 4;
+const double G = .04;
+const double epsilon = 1e-1;
 
 /*
  * Creates a new node for the Barnes Hut tree
@@ -158,4 +160,44 @@ vector find_com(node root) {
 void update_com(node root) {
   root->mass = find_mass_of_node(root);
   root->com = find_com(root);
+}
+
+/*
+ * Updates the force attribute on a given particle
+ */
+void update_force_on_particle(particle particle, node root, double r) {
+  particle->force->x += particle->pos->x - root->com->x;
+  particle->force->y += particle->pos->y - root->com->y;
+
+  double force_multiple = -G * particle->mass * root->mass;
+  force_multiple /= cube(r + epsilon);
+  scale(particle->force, force_multiple);
+}
+
+/*
+ * Applies Barnes Hut approximation to recursively calculate the forces on each
+ * particle in the system
+ */
+void approximate_force(particle particle, node root) {
+  if (has_children(root)) {
+    double r = distance(particle->pos->x - root->com->x,
+                        particle->pos->y - root->com->y);
+    double theta = (root->max->x - root->min->x) / r;
+
+    if (theta <= 0.5) {
+      // if the node's COM is sufficiently far, we give up and update the net
+      // force on the particle
+      update_force_on_particle(particle, root, r);
+    } else {
+      // if we are still close enough, keep running the approximation further
+      // down the tree
+      for (int i = 0; i < NUM_KIDS; i++) {
+        approximate_force(particle, root->children[i]);
+      }
+    }
+  } else if (root->particle != NULL && root->particle != particle) {
+    double r = distance(particle->pos->x - root->com->x,
+                        particle->pos->y - root->com->y);
+    update_force_on_particle(particle, root, r);
+  }
 }
