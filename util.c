@@ -22,6 +22,14 @@ double distance(double a, double b) {
   return sqrt(a2 + b2);
 }
 
+/*
+ * Returns a random number between min and max
+ */
+double rand_in_range(double min, double max) {
+  double ret = min + (max - min) * rand();
+  return ret / RAND_MAX;
+}
+
 /* ========================
  * Functions for vectors
  =========================*/

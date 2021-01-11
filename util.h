@@ -2,6 +2,7 @@
 double square(double n);
 double cube(double n);
 double distance(double a, double b);
+double rand_in_range(double min, double max);
 
 /* ========================
  * Vector

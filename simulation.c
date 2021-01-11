@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,8 +46,24 @@ void do_tick() {
   free(root);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
   universe = malloc(NUM_PARTICLES * sizeof(particle));
+
+  for (int i = 0; i < NUM_PARTICLES; i++) {
+    particle p = new_particle();
+    universe[i] = p;
+    p->mass = 1;
+
+    double r = rand_in_range(0, .25);
+    double theta = rand_in_range(0, 2 * M_PI);
+
+    p->pos->x = .5 + r * cos(theta);
+    p->pos->x = .5 + .25 * r * sin(theta);
+
+    double r_prime = distance(p->pos->x - .5, p->pos->y - .5);
+    p->vel->x = -50 * r_prime * sin(theta);
+    p->vel->y = 50 * r_prime * cos(theta);
+  }
 
   node root = new_node();
   particle p1 = new_particle();
