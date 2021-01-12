@@ -3,6 +3,7 @@
 // A particle in the universe
 typedef struct particle_t* particle;
 struct particle_t {
+  int num;
   double mass;
 
   vector pos;
@@ -11,4 +12,4 @@ struct particle_t {
   vector force;
 };
 
-particle new_particle();
+particle new_particle(int num);

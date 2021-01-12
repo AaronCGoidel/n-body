@@ -1,13 +1,16 @@
+#include <GLUT/glut.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "bh_tree.h"
+#include "graphics.h"
 
-int NUM_PARTICLES = 5;
+int NUM_PARTICLES = 10000;
 particle* universe;
 node root;
-const double dt = 1e-3;
+const double dt = 8e-4;
+const double alpha = .3;
 
 /*
  * Calculate and update net forces applied to each node in the tree
@@ -40,17 +43,29 @@ void apply_forces() {
  * Executes one tick in the simulation
  */
 void do_tick() {
+  root = new_node();
+
+  for (int i = 0; i < NUM_PARTICLES; i++) {
+    add_to_tree(universe[i], root);
+  }
+
+  update_com(root);
   calculate_forces();
   apply_forces();
+
   free_node(root);
   free(root);
 }
 
-int main(int argc, char* argv[]) {
-  universe = malloc(NUM_PARTICLES * sizeof(particle));
+void display() {
+  do_tick();
 
+  draw_points(universe, NUM_PARTICLES);
+}
+
+void setup_universe() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
-    particle p = new_particle();
+    particle p = new_particle(i);
     universe[i] = p;
     p->mass = 1;
 
@@ -58,15 +73,22 @@ int main(int argc, char* argv[]) {
     double theta = rand_in_range(0, 2 * M_PI);
 
     p->pos->x = .5 + r * cos(theta);
-    p->pos->x = .5 + .25 * r * sin(theta);
+    p->pos->y = .5 + alpha * r * sin(theta);
 
     double r_prime = distance(p->pos->x - .5, p->pos->y - .5);
     p->vel->x = -50 * r_prime * sin(theta);
     p->vel->y = 50 * r_prime * cos(theta);
   }
+}
 
-  node root = new_node();
-  particle p1 = new_particle();
+int main(int argc, char* argv[]) {
+  universe = malloc(NUM_PARTICLES * sizeof(particle));
 
-  add_to_tree(p1, root);
+  setup_universe();
+
+  init(&argc, argv, display);
+
+  glutMainLoop();
+
+  return 0;
 }

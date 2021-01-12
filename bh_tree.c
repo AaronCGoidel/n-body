@@ -1,9 +1,11 @@
 #include "bh_tree.h"
 
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 const int NUM_KIDS = 4;
-const double G = .04;
+const double G = 0.01;
 const double epsilon = 1e-1;
 
 /*
@@ -15,6 +17,12 @@ node new_node() {
   new->particle = NULL;
   new->mass = 0;
   new->com = NULL;
+  new->min = new_vec();
+  new->max = new_vec();
+  new->max->x = 1;
+  new->min->x = 0;
+  new->max->y = 1;
+  new->min->y = 0;
 
   return new;
 }
@@ -38,6 +46,42 @@ void free_node(node n) {
 int has_children(node n) {
   if (n->children == NULL) return 0;
   return 1;
+}
+
+/*
+ * Print the given tree to the console
+ * pass 1 for mass to print the COM and mass of each node
+ */
+void disp(node root, int indent, int mass) {
+  if (indent == 0) {
+    printf("===============\n");
+  }
+
+  if (root == NULL) {
+    printf("NULL!\n");
+    return;
+  }
+
+  for (int i = 0; i < indent; i++) {
+    printf("  ");
+  }
+
+  if (root->particle == NULL) {
+    printf("---\n");
+  } else {
+    printf("%d", root->particle->num);
+    if (mass) {
+      printf(": %f @ (%f, %f)\n", root->mass, root->com->x, root->com->y);
+    } else {
+      printf("\n");
+    }
+  }
+
+  if (has_children(root)) {
+    for (int i = 0; i < NUM_KIDS; i++) {
+      disp(root->children[i], indent + 1, mass);
+    }
+  }
 }
 
 /*
@@ -126,6 +170,10 @@ void add_to_tree(particle new_particle, node root) {
  * Recursively calculates the mass of the given node
  */
 double find_mass_of_node(node root) {
+  if (root->particle == NULL) {
+    root->mass = 0;
+    return 0;
+  }
   if (has_children(root)) {
     for (int i = 0; i < NUM_KIDS; i++) {
       root->mass += find_mass_of_node(root->children[i]);
@@ -178,12 +226,11 @@ void update_com(node root) {
  * Updates the force attribute on a given particle
  */
 void update_force_on_particle(particle particle, node root, double r) {
-  particle->force->x += particle->pos->x - root->com->x;
-  particle->force->y += particle->pos->y - root->com->y;
-
   double force_multiple = -G * particle->mass * root->mass;
   force_multiple /= cube(r + epsilon);
-  scale(particle->force, force_multiple);
+
+  particle->force->x += (particle->pos->x - root->com->x) * force_multiple;
+  particle->force->y += (particle->pos->y - root->com->y) * force_multiple;
 }
 
 /*
