@@ -15,7 +15,7 @@ const int NUM_PARTICLES = 10000;  // number of particles
 const double dt = 9.9e-4;
 
 // squish factor 1 for complete circle and 0 for flat line
-const double alpha = .3;
+double alpha;
 
 particle* universe;
 node root;
@@ -111,8 +111,21 @@ void setup_universe() {
   }
 }
 
+void init_sim(int argc, char* argv[]) {
+  alpha = .3;
+  if (argc == 2) {
+    sscanf(argv[1], "%lf", &alpha);
+  } else if (argc > 2) {
+    printf("Too many arguments supplied.\n");
+  } else {
+    alpha = .3;
+  }
+}
+
 int main(int argc, char* argv[]) {
   universe = malloc(NUM_PARTICLES * sizeof(particle));
+
+  init_sim(argc, argv);
 
   setup_universe();
 
