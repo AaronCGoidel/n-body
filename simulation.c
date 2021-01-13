@@ -15,7 +15,7 @@ const int NUM_PARTICLES = 10000;  // number of particles
 const double dt = 9.9e-4;
 
 // squish factor 1 for complete circle and 0 for flat line
-const double alpha = .5;
+const double alpha = .3;
 
 particle* universe;
 node root;
@@ -33,6 +33,24 @@ void calculate_forces() {
   }
 }
 
+void bounce(particle p) {
+  if (p->pos->x > 1) {
+    p->pos->x = 2 * 1 - p->pos->x;
+    p->vel->x = -p->vel->x;
+  } else if (p->pos->x < 0) {
+    p->pos->x = -p->pos->x;
+    p->vel->x = -p->vel->x;
+  }
+
+  if (p->pos->y > 1) {
+    p->pos->y = 2 - p->pos->y;
+    p->vel->y = -p->vel->y;
+  } else if (p->pos->y < 0) {
+    p->pos->y = -p->pos->y;
+    p->vel->y = -p->vel->y;
+  }
+}
+
 /*
  * Applies each particle's net force to update acceleration, velocity, and
  * position
@@ -46,6 +64,8 @@ void apply_forces() {
     p->vel->y += p->acc->y * dt;
     p->pos->x += p->vel->x * dt;
     p->pos->y += p->vel->y * dt;
+
+    // bounce(p);
   }
 }
 
@@ -100,5 +120,9 @@ int main(int argc, char* argv[]) {
 
   glutMainLoop();
 
+  for (int i = 0; i < NUM_PARTICLES; i++) {
+    free_particle(universe[i]);
+  }
+  free(universe);
   return 0;
 }

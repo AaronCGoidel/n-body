@@ -13,3 +13,4 @@ struct particle_t {
 };
 
 particle new_particle(int num);
+void free_particle(particle p);

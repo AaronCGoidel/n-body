@@ -18,3 +18,12 @@ particle new_particle(int num) {
 
   return p;
 }
+
+void free_particle(particle p) {
+  free(p->pos);
+  free(p->vel);
+  if (p->acc) {
+    free(p->acc);
+  }
+  free(p->force);
+}

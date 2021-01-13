@@ -34,6 +34,8 @@ void free_node(node n) {
       free_node(n->children[i]);
     }
     free(n->children);
+    free(n->min);
+    free(n->max);
   }
 }
 

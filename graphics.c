@@ -60,6 +60,7 @@ void render_particle(particle p, int color_mode) {
   }
 
   draw_circle(x, y, color);
+  free(color);
 }
 
 /*
