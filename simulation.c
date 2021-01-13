@@ -6,20 +6,28 @@
 #include "bh_tree.h"
 #include "graphics.h"
 
-int NUM_PARTICLES = 10000;
+// SOME CONSTANTS
+
+const int NUM_PARTICLES = 10000;  // number of particles
+
+const double dt = 8e-4;
+
+// squish factor 1 for complete circle and 0 for flat line
+const double alpha = .51;
+
 particle* universe;
 node root;
-const double dt = 8e-4;
-const double alpha = .3;
 
 /*
  * Calculate and update net forces applied to each node in the tree
  */
 void calculate_forces() {
+  double G = 100.0 / NUM_PARTICLES;
+
   for (int i = 0; i < NUM_PARTICLES; i++) {
     universe[i]->force->x = 0;
     universe[i]->force->y = 0;
-    approximate_force(universe[i], root);
+    approximate_force(universe[i], root, G);
   }
 }
 
@@ -67,7 +75,7 @@ void setup_universe() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     particle p = new_particle(i);
     universe[i] = p;
-    p->mass = 1;
+    p->mass = rand_in_range(0, 1);
 
     double r = rand_in_range(0, .25);
     double theta = rand_in_range(0, 2 * M_PI);

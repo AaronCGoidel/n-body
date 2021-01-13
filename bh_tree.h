@@ -25,4 +25,4 @@ void add_to_tree(particle new_particle, node root);
 void update_com(node root);
 void disp(node root, int indent, int mass);
 
-void approximate_force(particle particle, node root);
+void approximate_force(particle particle, node root, double G);

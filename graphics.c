@@ -11,13 +11,21 @@
 
 #include "particle.h"
 
-void draw_circle(double x, double y) {
+/*
+ * Draws a circle centered at (x, y) filled with color
+ * (blue if none is given)
+ */
+void draw_circle(double x, double y, float* color) {
   glPushMatrix();
 
   glScalef(2.0, 2.0, 1.0);
   glTranslatef(-0.5, -0.5, 0);
 
-  glColor3f(0.2, 0.3, 0.5);
+  if (color == NULL) {
+    glColor3f(0.2, 0.3, 0.5);
+  } else {
+    glColor3f(color[0], color[1], color[2]);
+  }
 
   glBegin(GL_POLYGON);
 
@@ -28,6 +36,21 @@ void draw_circle(double x, double y) {
   glPopMatrix();
 }
 
+/*
+ * Draws a dot on the screen representing the given particle, colored according
+ * to mass
+ */
+void render_particle(particle p) {
+  double x = p->pos->x;
+  double y = p->pos->y;
+  float* color = hsv_to_rgb(205, p->mass * 100, 50);
+
+  draw_circle(x, y, color);
+}
+
+/*
+ * Renders all particles in universe to the screen
+ */
 void draw_points(particle* universe, int size) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -35,9 +58,9 @@ void draw_points(particle* universe, int size) {
 
   glBegin(GL_POINTS);
   glColor3f(1.0, 1.0, 1.0);
-  draw_circle(-100, -100);
+  draw_circle(-100, -100, NULL);
   for (int i = 0; i < size; i++) {
-    draw_circle(universe[i]->pos->x, universe[i]->pos->y);
+    render_particle(universe[i]);
   }
   glEnd();
 
