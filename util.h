@@ -18,3 +18,4 @@ struct vec_t {
 
 vector new_vec();
 void scale(vector v, double scalar);
+double magnitude(vector v);

@@ -53,6 +53,11 @@ void scale(vector v, double scalar) {
 }
 
 /*
+ * Returns the magnitude of the given vector
+ */
+double magnitude(vector v) { return distance(v->x, v->y); }
+
+/*
  * Converts a color in HSV to a color in RGB (as percents)
  */
 float* hsv_to_rgb(float h, float s, float v) {

@@ -40,18 +40,35 @@ void draw_circle(double x, double y, float* color) {
  * Draws a dot on the screen representing the given particle, colored according
  * to mass
  */
-void render_particle(particle p) {
+void render_particle(particle p, int color_mode) {
   double x = p->pos->x;
   double y = p->pos->y;
-  float* color = hsv_to_rgb(205, p->mass * 100, 50);
+  float* color;
+  double d, f_mag;
+  switch (color_mode) {
+    case 0:
+      color = hsv_to_rgb(205, (p->mass) * 100, 50);
+      break;
+    case 1:
+      d = distance(x - .5, y - .5);
+      color = hsv_to_rgb((d)*180, 80, 50);
+      break;
+    case 2:
+      f_mag = magnitude(p->force) / 2 > 255 ? 255 : magnitude(p->force) / 2;
+      color = hsv_to_rgb(255 - f_mag, 80, 50);
+      break;
+  }
 
   draw_circle(x, y, color);
 }
 
 /*
  * Renders all particles in universe to the screen
+ * pass 0 to color particles by mass, 1 to color_by_dist to color particles in a
+ * gradient based on their distance from the focus, 2 to color them by magnitude
+ * of net force.
  */
-void draw_points(particle* universe, int size) {
+void draw_points(particle* universe, int size, int color_mode) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glPushMatrix();
@@ -60,7 +77,7 @@ void draw_points(particle* universe, int size) {
   glColor3f(1.0, 1.0, 1.0);
   draw_circle(-100, -100, NULL);
   for (int i = 0; i < size; i++) {
-    render_particle(universe[i]);
+    render_particle(universe[i], color_mode);
   }
   glEnd();
 
@@ -74,7 +91,7 @@ void init(int* argc, char** argv, void* display_fn) {
   glutInit(argc, argv);
 
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-  glutInitWindowSize(800, 800);
+  glutInitWindowSize(400, 400);
 
   glutCreateWindow("Simulation by Aaron Goidel");
 

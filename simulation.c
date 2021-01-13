@@ -6,14 +6,16 @@
 #include "bh_tree.h"
 #include "graphics.h"
 
+#define COLOR_MODE 2  // 0 color by mass, 1 for dist from center, 2 for force
+
 // SOME CONSTANTS
 
 const int NUM_PARTICLES = 10000;  // number of particles
 
-const double dt = 8e-4;
+const double dt = 9.9e-4;
 
 // squish factor 1 for complete circle and 0 for flat line
-const double alpha = .51;
+const double alpha = .5;
 
 particle* universe;
 node root;
@@ -68,7 +70,7 @@ void do_tick() {
 void display() {
   do_tick();
 
-  draw_points(universe, NUM_PARTICLES);
+  draw_points(universe, NUM_PARTICLES, COLOR_MODE);
 }
 
 void setup_universe() {
