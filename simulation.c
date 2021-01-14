@@ -2,20 +2,21 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "bh_tree.h"
 #include "graphics.h"
-
-#define COLOR_MODE 2  // 0 color by mass, 1 for dist from center, 2 for force
 
 // SOME CONSTANTS
 
 const int NUM_PARTICLES = 10000;  // number of particles
 
-const double dt = 9.9e-4;
+const double dt = 1e-3;
 
 // squish factor 1 for complete circle and 0 for flat line
 double alpha;
+
+int color_mode;  // 0 color by mass, 1 for dist from center, 2 for force
 
 particle* universe;
 node root;
@@ -90,9 +91,12 @@ void do_tick() {
 void display() {
   do_tick();
 
-  draw_points(universe, NUM_PARTICLES, COLOR_MODE);
+  draw_points(universe, NUM_PARTICLES, color_mode);
 }
 
+/*
+ * Initialize the universe of random particles
+ */
 void setup_universe() {
   for (int i = 0; i < NUM_PARTICLES; i++) {
     particle p = new_particle(i);
@@ -111,14 +115,23 @@ void setup_universe() {
   }
 }
 
+/*
+ * Handle commandline args
+ */
 void init_sim(int argc, char* argv[]) {
   alpha = .3;
-  if (argc == 2) {
-    sscanf(argv[1], "%lf", &alpha);
-  } else if (argc > 2) {
-    printf("Too many arguments supplied.\n");
-  } else {
-    alpha = .3;
+  color_mode = 2;
+
+  for (int i = 0; i < argc; i++) {
+    if (strcmp("-m", argv[i]) == 0) {
+      color_mode = 0;
+    } else if (strcmp("-d", argv[i]) == 0) {
+      color_mode = 1;
+    } else if (strcmp("-f", argv[i]) == 0) {
+      color_mode = 2;
+    } else if (strcmp("-a", argv[i]) == 0) {
+      sscanf(argv[++i], "%lf", &alpha);
+    }
   }
 }
 
