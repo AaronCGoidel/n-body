@@ -9,3 +9,4 @@ In your terminal, `cd` into this directory then run
 ```bash
 make && ./sim
 ```
+(Note: If you're on windows, you'll need to use a windows based compiler)
