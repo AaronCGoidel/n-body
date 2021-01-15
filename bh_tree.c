@@ -29,7 +29,7 @@ node new_node() {
  * Recursively free node and its children
  */
 void free_node(node n) {
-  if (has_children(n)) {
+  if (n->children != NULL) {
     for (int i = 0; i < NUM_KIDS; i++) {
       free_node(n->children[i]);
     }
@@ -46,10 +46,7 @@ void free_node(node n) {
  * Check if the given node has any children
  * Returns 1 iff yes, 0 otherwise
  */
-int has_children(node n) {
-  if (n->children == NULL) return 0;
-  return 1;
-}
+int has_children(node n) { return n->children != NULL; }
 
 /*
  * Print the given tree to the console
@@ -80,7 +77,7 @@ void disp(node root, int indent, int mass) {
     }
   }
 
-  if (has_children(root)) {
+  if (root->children != NULL) {
     for (int i = 0; i < NUM_KIDS; i++) {
       disp(root->children[i], indent + 1, mass);
     }
@@ -150,7 +147,7 @@ void add_to_tree(particle new_particle, node root) {
     // if the root node has no particle, set to given node
     root->particle = new_particle;
   } else {
-    if (!has_children(root)) {
+    if (root->children == NULL) {
       // if the root has no children, we need to add children
       root->children = malloc(NUM_KIDS * sizeof(node));
 
@@ -177,7 +174,7 @@ double find_mass_of_node(node root) {
     root->mass = 0;
     return 0;
   }
-  if (has_children(root)) {
+  if (root->children != NULL) {
     for (int i = 0; i < NUM_KIDS; i++) {
       root->mass += find_mass_of_node(root->children[i]);
     }
@@ -193,7 +190,7 @@ double find_mass_of_node(node root) {
 vector find_com(node root) {
   vector com = new_vec();
 
-  if (has_children(root)) {
+  if (root->children != NULL) {
     root->com = com;
 
     double mass = 0;
@@ -229,12 +226,12 @@ void update_com(node root) {
  * Updates the force attribute on a given particle
  */
 void update_force_on_particle(particle particle, node root, double r,
-                              double G) {
+                              double x_d, double y_d, double G) {
   double force_multiple = -G * particle->mass * root->mass;
   force_multiple /= cube(r + epsilon);
 
-  particle->force->x += (particle->pos->x - root->com->x) * force_multiple;
-  particle->force->y += (particle->pos->y - root->com->y) * force_multiple;
+  particle->force->x += x_d * force_multiple;
+  particle->force->y += y_d * force_multiple;
 }
 
 /*
@@ -242,15 +239,21 @@ void update_force_on_particle(particle particle, node root, double r,
  * particle in the system
  */
 void approximate_force(particle particle, node root, double G) {
-  if (has_children(root)) {
-    double r = distance(particle->pos->x - root->com->x,
-                        particle->pos->y - root->com->y);
+  double r, x_d, y_d;
+  vector pos = particle->pos;
+  vector com = root->com;
+  if (root->particle != NULL) {
+    x_d = pos->x - com->x;
+    y_d = pos->y - com->y;
+    r = distance(x_d, y_d);
+  }
+  if (root->children != NULL) {
     double theta = (root->max->x - root->min->x) / r;
 
     if (theta <= 0.5) {
       // if the node's COM is sufficiently far, we give up and update the net
       // force on the particle
-      update_force_on_particle(particle, root, r, G);
+      update_force_on_particle(particle, root, r, x_d, y_d, G);
     } else {
       // if we are still close enough, keep running the approximation further
       // down the tree
@@ -259,8 +262,6 @@ void approximate_force(particle particle, node root, double G) {
       }
     }
   } else if (root->particle != NULL && root->particle != particle) {
-    double r = distance(particle->pos->x - root->com->x,
-                        particle->pos->y - root->com->y);
-    update_force_on_particle(particle, root, r, G);
+    update_force_on_particle(particle, root, r, x_d, y_d, G);
   }
 }
