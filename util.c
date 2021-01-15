@@ -26,8 +26,9 @@ double distance(double a, double b) {
  * Returns a random number between min and max
  */
 double rand_in_range(double min, double max) {
-  double ret = min + (max - min) * rand();
-  return ret / RAND_MAX;
+  double range = (max - min);
+  double fact = RAND_MAX / range;
+  return min + (rand() / fact);
 }
 
 /* ========================
