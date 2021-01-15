@@ -80,8 +80,8 @@ void draw_points(particle* universe, int size) {
   glBegin(GL_POINTS);
   glColor3f(1.0, 1.0, 1.0);
   draw_circle(-100, -100, NULL);
-  for (int i = 0; i < size; i++) {
-    render_particle(universe[i]);
+  for (particle* p_ptr = universe; p_ptr < universe + size; p_ptr++) {
+    render_particle(*p_ptr);
   }
   glEnd();
 }

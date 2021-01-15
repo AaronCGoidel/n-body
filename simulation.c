@@ -31,10 +31,11 @@ void calculate_forces() {
   double G = 100.0 / NUM_PARTICLES;
 
 #pragma omp parallel for
-  for (int i = 0; i < NUM_PARTICLES; i++) {
-    universe[i]->force->x = 0;
-    universe[i]->force->y = 0;
-    approximate_force(universe[i], root, G);
+  for (particle* p_ptr = universe; p_ptr < universe + NUM_PARTICLES; p_ptr++) {
+    particle p = *p_ptr;
+    p->force->x = 0;
+    p->force->y = 0;
+    approximate_force(p, root, G);
   }
 }
 
@@ -62,16 +63,14 @@ void bounce(particle p) {
  */
 void apply_forces() {
 #pragma omp parallel for
-  for (int i = 0; i < NUM_PARTICLES; i++) {
-    particle p = universe[i];
+  for (particle* p_ptr = universe; p_ptr < universe + NUM_PARTICLES; p_ptr++) {
+    particle p = *p_ptr;
     scale(p->force, 1.0 / p->mass);
     p->acc = p->force;
     p->vel->x += p->acc->x * dt;
     p->vel->y += p->acc->y * dt;
     p->pos->x += p->vel->x * dt;
     p->pos->y += p->vel->y * dt;
-
-    // bounce(p);
   }
 }
 
@@ -81,8 +80,8 @@ void apply_forces() {
 void do_tick() {
   root = new_node();
 
-  for (int i = 0; i < NUM_PARTICLES; i++) {
-    add_to_tree(universe[i], root);
+  for (particle* p_ptr = universe; p_ptr < universe + NUM_PARTICLES; p_ptr++) {
+    add_to_tree(*p_ptr, root);
   }
 
   update_com(root);
