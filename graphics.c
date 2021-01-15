@@ -11,6 +11,10 @@
 
 #include "particle.h"
 
+int win;
+int is_paused;
+int color_mode;
+
 /*
  * Draws a circle centered at (x, y) filled with color
  * (blue if none is given)
@@ -40,7 +44,7 @@ void draw_circle(double x, double y, float* color) {
  * Draws a dot on the screen representing the given particle, colored according
  * to mass
  */
-void render_particle(particle p, int color_mode) {
+void render_particle(particle p) {
   double x = p->pos->x;
   double y = p->pos->y;
   float* color;
@@ -72,21 +76,69 @@ void render_particle(particle p, int color_mode) {
  * gradient based on their distance from the focus, 2 to color them by magnitude
  * of net force.
  */
-void draw_points(particle* universe, int size, int color_mode) {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  glPushMatrix();
-
+void draw_points(particle* universe, int size) {
   glBegin(GL_POINTS);
   glColor3f(1.0, 1.0, 1.0);
   draw_circle(-100, -100, NULL);
   for (int i = 0; i < size; i++) {
-    render_particle(universe[i], color_mode);
+    render_particle(universe[i]);
   }
   glEnd();
+}
 
+/*
+ * Draws the given string to the screen at (x, y, z)
+ */
+void draw_msg(float x, float y, float z, char* msg) {
+  glRasterPos3f(x, y, z);
+
+  for (char* c = msg; *c != '\0'; c++) {
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+  }
+}
+
+/*
+ * Render the simulation consisting of the given universe of particles in the
+ * given color mode
+ */
+void draw(particle* universe, int size, int color_mode) {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glPushMatrix();
+  if (is_paused) {
+    draw_msg(0.8, 0.9, 0.0, "Paused");
+  }
+  draw_points(universe, size);
   glPopMatrix();
   glutSwapBuffers();
+}
+
+/*
+ * Handler for all key events on this window
+ */
+void handle_key_evt(unsigned char key, int x, int y) {
+  switch (key) {
+    case 32:  // space bar - pause sim
+      is_paused = is_paused ? 0 : 1;
+      break;
+    case 113:  // q - quit
+      glutDestroyWindow(win);
+      exit(0);
+      break;
+    // color modes
+    case 49:  // 1 - mass
+      color_mode = 0;
+      break;
+    case 50:  // 2 - distance
+      color_mode = 1;
+      break;
+    case 51:  // 3 - force
+      color_mode = 2;
+      break;
+    default:
+      printf("%u\n", key);
+      break;
+  }
 }
 
 void reshape(int width, int height) { glViewport(0, 0, width, height); }
@@ -97,9 +149,10 @@ void init(int* argc, char** argv, void* display_fn) {
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(1000, 1000);
 
-  glutCreateWindow("Simulation by Aaron Goidel");
+  win = glutCreateWindow("Simulation by Aaron Goidel");
 
   glutDisplayFunc(display_fn);
   glutReshapeFunc(reshape);
   glutIdleFunc(glutPostRedisplay);
+  glutKeyboardFunc(handle_key_evt);
 }

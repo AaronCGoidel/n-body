@@ -21,8 +21,6 @@ const double dt = 8.5e-4;
 // squish factor 1 for complete circle and 0 for flat line
 double alpha;
 
-int color_mode;  // 0 color by mass, 1 for dist from center, 2 for force
-
 particle* universe;
 node root;
 
@@ -96,9 +94,11 @@ void do_tick() {
 }
 
 void display() {
-  do_tick();
+  if (!is_paused) {
+    do_tick();
+  }
 
-  draw_points(universe, NUM_PARTICLES, color_mode);
+  draw(universe, NUM_PARTICLES);
 }
 
 /*
@@ -127,19 +127,20 @@ void setup_universe() {
  */
 void init_sim(int argc, char* argv[]) {
   alpha = .3;
-  color_mode = 2;
 
   for (int i = 0; i < argc; i++) {
-    if (strcmp("-m", argv[i]) == 0) {
-      color_mode = 0;
-    } else if (strcmp("-d", argv[i]) == 0) {
-      color_mode = 1;
-    } else if (strcmp("-f", argv[i]) == 0) {
-      color_mode = 2;
-    } else if (strcmp("-a", argv[i]) == 0) {
+    if (strcmp("-a", argv[i]) == 0) {
       sscanf(argv[++i], "%lf", &alpha);
     }
   }
+}
+
+void do_cleanup() {
+  for (int i = 0; i < NUM_PARTICLES; i++) {
+    free_particle(universe[i]);
+  }
+  free(universe);
+  exit(0);
 }
 
 int main(int argc, char* argv[]) {
@@ -153,9 +154,5 @@ int main(int argc, char* argv[]) {
 
   glutMainLoop();
 
-  for (int i = 0; i < NUM_PARTICLES; i++) {
-    free_particle(universe[i]);
-  }
-  free(universe);
   return 0;
 }
