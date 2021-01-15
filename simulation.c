@@ -40,19 +40,19 @@ void calculate_forces() {
 }
 
 void bounce(particle p) {
-  if (p->pos->x > 1) {
-    p->pos->x = 2 * 1 - p->pos->x;
+  if (p->pos->x >= 1) {
+    p->pos->x = .999;
     p->vel->x = -p->vel->x;
-  } else if (p->pos->x < 0) {
-    p->pos->x = -p->pos->x;
+  } else if (p->pos->x <= 0) {
+    p->pos->x = 0.001;
     p->vel->x = -p->vel->x;
   }
 
-  if (p->pos->y > 1) {
-    p->pos->y = 2 - p->pos->y;
+  if (p->pos->y >= 1) {
+    p->pos->y = .999;
     p->vel->y = -p->vel->y;
-  } else if (p->pos->y < 0) {
-    p->pos->y = -p->pos->y;
+  } else if (p->pos->y <= 0) {
+    p->pos->y = .001;
     p->vel->y = -p->vel->y;
   }
 }
@@ -71,7 +71,7 @@ void apply_forces() {
     p->pos->x += p->vel->x * dt;
     p->pos->y += p->vel->y * dt;
 
-    // bounce(p);
+    bounce(p);
   }
 }
 
