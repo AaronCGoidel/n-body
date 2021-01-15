@@ -7,7 +7,7 @@ SFLAGS = -Wno-deprecated
 all: simulation
 
 simulation: simulation.c bh_tree.c particle.c util.c graphics.c
-	gcc -o sim simulation.c bh_tree.c particle.c util.c graphics.c ${SFLAGS} ${GFFLAGS}
+	clang -fopenmp -L/usr/local/opt/llvm/lib -o sim simulation.c bh_tree.c particle.c util.c graphics.c ${SFLAGS} ${GFFLAGS} 
 
 clean:
 	rm -f sim

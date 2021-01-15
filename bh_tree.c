@@ -94,8 +94,8 @@ void disp(node root, int indent, int mass) {
 void set_bounds(node n) {
   struct vec_t min = *n->min;
   struct vec_t max = *n->max;
-  double x_avg = (min.x + max.x) / 2;
-  double y_avg = (min.y + max.y) / 2;
+  double x_avg = (min.x + max.x) / 2.0;
+  double y_avg = (min.y + max.y) / 2.0;
 
   // bounds for first child
   n->children[0]->min->x = min.x;
@@ -128,8 +128,8 @@ void set_bounds(node n) {
 node find_subtree(particle particle, node root) {
   vector pos = particle->pos;
   int target = 3;
-  double x_avg = (root->min->x + root->max->x) / 2;
-  double y_avg = (root->min->y + root->max->y) / 2;
+  double x_avg = (root->min->x + root->max->x) / 2.0;
+  double y_avg = (root->min->y + root->max->y) / 2.0;
 
   if (pos->x <= x_avg && pos->y <= y_avg) {
     target = 0;
@@ -206,7 +206,7 @@ vector find_com(node root) {
         mass += root->children[i]->mass;
       }
     }
-    scale(root->com, 1 / mass);
+    scale(root->com, 1.0 / mass);
   } else {
     com->x = root->particle->pos->x;
     com->y = root->particle->pos->y;

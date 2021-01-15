@@ -29,7 +29,7 @@ void draw_circle(double x, double y, float* color) {
 
   glBegin(GL_POLYGON);
 
-  for (double i = 0; i < 2 * M_PI; i += M_PI / 12)
+  for (double i = 0; i < 2 * M_PI; i += M_PI / 12.0)
     glVertex3f(cos(i) * .001 + x, sin(i) * .001 + y, 0.0);
   glEnd();
 
@@ -54,7 +54,10 @@ void render_particle(particle p, int color_mode) {
       color = hsv_to_rgb((d)*180, 80, 50);
       break;
     case 2:
-      f_mag = magnitude(p->force) / 2 > 255 ? 255 : magnitude(p->force) / 2;
+      f_mag = magnitude(p->force) / 2.0;
+      if (f_mag > 255) {
+        f_mag = 255;
+      }
       color = hsv_to_rgb(255 - f_mag, 80, 50);
       break;
   }
@@ -92,7 +95,7 @@ void init(int* argc, char** argv, void* display_fn) {
   glutInit(argc, argv);
 
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-  glutInitWindowSize(400, 400);
+  glutInitWindowSize(1000, 1000);
 
   glutCreateWindow("Simulation by Aaron Goidel");
 

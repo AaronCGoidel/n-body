@@ -14,9 +14,9 @@
 
 // SOME CONSTANTS
 
-const int NUM_PARTICLES = 10000;  // number of particles
+const int NUM_PARTICLES = 12000;  // number of particles
 
-const double dt = 1e-3;
+const double dt = 8.5e-4;
 
 // squish factor 1 for complete circle and 0 for flat line
 double alpha;
@@ -32,6 +32,7 @@ node root;
 void calculate_forces() {
   double G = 100.0 / NUM_PARTICLES;
 
+#pragma omp parallel for
   for (int i = 0; i < NUM_PARTICLES; i++) {
     universe[i]->force->x = 0;
     universe[i]->force->y = 0;
@@ -62,16 +63,17 @@ void bounce(particle p) {
  * position
  */
 void apply_forces() {
+#pragma omp parallel for
   for (int i = 0; i < NUM_PARTICLES; i++) {
     particle p = universe[i];
-    scale(p->force, 1 / p->mass);
+    scale(p->force, 1.0 / p->mass);
     p->acc = p->force;
     p->vel->x += p->acc->x * dt;
     p->vel->y += p->acc->y * dt;
     p->pos->x += p->vel->x * dt;
     p->pos->y += p->vel->y * dt;
 
-    bounce(p);
+    // bounce(p);
   }
 }
 
