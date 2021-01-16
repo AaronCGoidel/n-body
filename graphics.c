@@ -5,6 +5,7 @@
 #include <GL/glut.h>
 #endif
 
+#include <locale.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,9 @@
 int win;
 int is_paused;
 int color_mode;
+char *count_msg, *fps_msg;
+int frame = 0, time, timebase = 0;
+float fps;
 
 /*
  * Draws a circle centered at (x, y) filled with color
@@ -90,6 +94,7 @@ void draw_points(particle* universe, int size) {
  * Draws the given string to the screen at (x, y, z)
  */
 void draw_msg(float x, float y, float z, char* msg) {
+  glColor3f(1.0, 1.0, 1.0);
   glRasterPos3f(x, y, z);
 
   for (char* c = msg; *c != '\0'; c++) {
@@ -105,9 +110,19 @@ void draw(particle* universe, int size, int color_mode) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glPushMatrix();
+
+  // display pause message if paused
   if (is_paused) {
     draw_msg(0.8, 0.9, 0.0, "Paused");
   }
+
+  // display number of particles
+  draw_msg(-.95, 0.92, 0.0, count_msg);
+
+  // display FPS
+  sprintf(fps_msg, "FPS: %.2f", fps);
+  draw_msg(-0.95, 0.86, 0.0, fps_msg);
+
   draw_points(universe, size);
   glPopMatrix();
   glutSwapBuffers();
@@ -143,7 +158,21 @@ void handle_key_evt(unsigned char key, int x, int y) {
 
 void reshape(int width, int height) { glViewport(0, 0, width, height); }
 
-void init(int* argc, char** argv, void* display_fn) {
+void idle() {
+  frame++;
+  time = glutGet(GLUT_ELAPSED_TIME);
+
+  // calculate fps
+  if (time - timebase > 1000) {
+    fps = frame * 1000.0 / (time - timebase);
+    timebase = time;
+    frame = 0;
+  }
+
+  glutPostRedisplay();
+}
+
+void init(int* argc, char** argv, void* display_fn, int size) {
   glutInit(argc, argv);
 
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -153,6 +182,12 @@ void init(int* argc, char** argv, void* display_fn) {
 
   glutDisplayFunc(display_fn);
   glutReshapeFunc(reshape);
-  glutIdleFunc(glutPostRedisplay);
+  glutIdleFunc(idle);
   glutKeyboardFunc(handle_key_evt);
+
+  count_msg = (char*)malloc(30 * sizeof(char));
+  setlocale(LC_NUMERIC, "");
+  sprintf(count_msg, "Simulating %'d particles", size);
+
+  fps_msg = (char*)malloc(8 * sizeof(char));
 }

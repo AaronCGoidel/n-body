@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
 
   setup_universe();
 
-  init(&argc, argv, display);
+  init(&argc, argv, display, NUM_PARTICLES);
 
   glutMainLoop();
 

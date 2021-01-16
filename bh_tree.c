@@ -228,11 +228,12 @@ void update_com(node root) {
  */
 void update_force_on_particle(particle particle, node root, double r,
                               double x_d, double y_d, double G) {
+  vector force = particle->force;
   double force_multiple = -G * particle->mass * root->mass;
   force_multiple /= cube(r + epsilon);
 
-  particle->force->x += x_d * force_multiple;
-  particle->force->y += y_d * force_multiple;
+  force->x += x_d * force_multiple;
+  force->y += y_d * force_multiple;
 }
 
 /*

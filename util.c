@@ -31,7 +31,7 @@ double inv_sqrt(double n) {
   long i = *(long*)&y;
   i = 0x5fe6eb50c7b537a9 - (i >> 1);
   y = *(double*)&i;
-  y = y * (1.5 - (x2 * y * y));  // 1st iteration
+  y = y * (1.5 - (x2 * y * y));
 
   return y;
 }
