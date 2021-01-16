@@ -23,6 +23,20 @@ double distance(double a, double b) {
 }
 
 /*
+ * Quake fast inverse square root
+ */
+double inv_sqrt(double n) {
+  double y = n;
+  double x2 = y * 0.5;
+  long i = *(long*)&y;
+  i = 0x5fe6eb50c7b537a9 - (i >> 1);
+  y = *(double*)&i;
+  y = y * (1.5 - (x2 * y * y));  // 1st iteration
+
+  return y;
+}
+
+/*
  * Returns a random number between min and max
  */
 double rand_in_range(double min, double max) {

@@ -14,7 +14,7 @@
 
 // SOME CONSTANTS
 
-const int NUM_PARTICLES = 12000;  // number of particles
+const int NUM_PARTICLES = 30000;  // number of particles
 
 const double dt = 8.5e-4;
 

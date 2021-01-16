@@ -1,8 +1,12 @@
 // some helpers and utils
+
+// math
+
 double square(double n);
 double cube(double n);
 double distance(double a, double b);
 double rand_in_range(double min, double max);
+double inv_sqrt(double n);
 
 float* hsv_to_rgb(float h, float s, float v);
 

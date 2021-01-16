@@ -1,5 +1,6 @@
 #include "bh_tree.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -239,21 +240,23 @@ void update_force_on_particle(particle particle, node root, double r,
  * particle in the system
  */
 void approximate_force(particle particle, node root, double G) {
-  double r, x_d, y_d;
+  double r, x_d, y_d, c_squared;
   vector pos = particle->pos;
   vector com = root->com;
   if (root->particle != NULL) {
     x_d = pos->x - com->x;
     y_d = pos->y - com->y;
-    r = distance(x_d, y_d);
+    c_squared = square(x_d) + square(y_d);
   }
+
   if (root->children != NULL) {
-    double theta = (root->max->x - root->min->x) / r;
+    double inverse_r = inv_sqrt(c_squared);
+    double theta = (root->max->x - root->min->x) * inverse_r;
 
     if (theta <= 0.5) {
       // if the node's COM is sufficiently far, we give up and update the net
       // force on the particle
-      update_force_on_particle(particle, root, r, x_d, y_d, G);
+      update_force_on_particle(particle, root, 1.0 / inverse_r, x_d, y_d, G);
     } else {
       // if we are still close enough, keep running the approximation further
       // down the tree
@@ -262,6 +265,7 @@ void approximate_force(particle particle, node root, double G) {
       }
     }
   } else if (root->particle != NULL && root->particle != particle) {
+    r = sqrt(c_squared);
     update_force_on_particle(particle, root, r, x_d, y_d, G);
   }
 }
