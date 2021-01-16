@@ -12,10 +12,12 @@
 
 #include "particle.h"
 
-int win;
-int is_paused;
-int color_mode;
-char *count_msg, *fps_msg;
+int win;         // window id
+int is_paused;   // 0 if simulation is paused, 1 if playing
+int color_mode;  // 0 for color by mass, 1 for dist from focus, 2 for net force
+char *count_msg, *fps_msg;  // messages to display at top of screen
+
+// fps info
 int frame = 0, time, timebase = 0;
 float fps;
 
@@ -26,6 +28,7 @@ float fps;
 void draw_circle(double x, double y, float* color) {
   glPushMatrix();
 
+  // move to correct coordinate system
   glScalef(2.0, 2.0, 1.0);
   glTranslatef(-0.5, -0.5, 0);
 
@@ -37,6 +40,7 @@ void draw_circle(double x, double y, float* color) {
 
   glBegin(GL_POLYGON);
 
+  // draw a dot
   for (double i = 0; i < 2 * M_PI; i += M_PI / 12.0)
     glVertex3f(cos(i) * .001 + x, sin(i) * .001 + y, 0.0);
   glEnd();
@@ -53,6 +57,8 @@ void render_particle(particle p) {
   double y = p->pos->y;
   float* color;
   double d, f_mag;
+
+  // set color of particle
   switch (color_mode) {
     case 0:
       color = hsv_to_rgb(205, (p->mass) * 100, 50);
@@ -123,7 +129,9 @@ void draw(particle* universe, int size, int color_mode) {
   sprintf(fps_msg, "FPS: %.2f", fps);
   draw_msg(-0.95, 0.86, 0.0, fps_msg);
 
+  // draw particles to screen
   draw_points(universe, size);
+
   glPopMatrix();
   glutSwapBuffers();
 }
@@ -158,6 +166,9 @@ void handle_key_evt(unsigned char key, int x, int y) {
 
 void reshape(int width, int height) { glViewport(0, 0, width, height); }
 
+/*
+ * tasks to perform while window is idle (mostly updates fps)
+ */
 void idle() {
   frame++;
   time = glutGet(GLUT_ELAPSED_TIME);
@@ -173,6 +184,7 @@ void idle() {
 }
 
 void init(int* argc, char** argv, void* display_fn, int size) {
+  // start OpenGL
   glutInit(argc, argv);
 
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -180,11 +192,13 @@ void init(int* argc, char** argv, void* display_fn, int size) {
 
   win = glutCreateWindow("Simulation by Aaron Goidel");
 
+  // register functions
   glutDisplayFunc(display_fn);
   glutReshapeFunc(reshape);
   glutIdleFunc(idle);
   glutKeyboardFunc(handle_key_evt);
 
+  // set screen messages
   count_msg = (char*)malloc(30 * sizeof(char));
   setlocale(LC_NUMERIC, "");
   sprintf(count_msg, "Simulating %'d particles", size);

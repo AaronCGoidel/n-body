@@ -129,6 +129,7 @@ node find_subtree(particle particle, node root) {
   double x_avg = (root->min->x + root->max->x) / 2.0;
   double y_avg = (root->min->y + root->max->y) / 2.0;
 
+  // determine which quadrant to place node in
   if (pos->x <= x_avg && pos->y <= y_avg) {
     target = 0;
   } else if (pos->x > x_avg && pos->y < y_avg) {
@@ -192,6 +193,7 @@ vector find_com(node root) {
   vector com = new_vec();
 
   if (root->children != NULL) {
+    // if the root has children, recurse to find their com's and update parent
     root->com = com;
 
     double mass = 0;
@@ -206,6 +208,7 @@ vector find_com(node root) {
     }
     scale(root->com, 1.0 / mass);
   } else {
+    // if this is a leaf node, com is just position
     com->x = root->particle->pos->x;
     com->y = root->particle->pos->y;
 
@@ -244,6 +247,8 @@ void approximate_force(particle particle, node root, double G) {
   double r, x_d, y_d, c_squared;
   vector pos = particle->pos;
   vector com = root->com;
+
+  // perform repeat steps upfront
   if (root->particle != NULL) {
     x_d = pos->x - com->x;
     y_d = pos->y - com->y;
@@ -251,6 +256,7 @@ void approximate_force(particle particle, node root, double G) {
   }
 
   if (root->children != NULL) {
+    // apply fast inverse sqrt
     double inverse_r = inv_sqrt(c_squared);
     double theta = (root->max->x - root->min->x) * inverse_r;
 

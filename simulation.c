@@ -14,7 +14,7 @@
 
 // SOME CONSTANTS
 
-const int NUM_PARTICLES = 30000;  // number of particles
+const int NUM_PARTICLES = 10000;  // number of particles
 
 const double dt = 8.5e-4;
 
@@ -92,6 +92,9 @@ void do_tick() {
   free(root);
 }
 
+/*
+ * Display fn: what to do every tick/frame
+ */
 void display() {
   if (!is_paused) {
     do_tick();
