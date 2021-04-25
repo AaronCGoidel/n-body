@@ -6,7 +6,18 @@ An n-body simulation modeling the formation of a galaxy
 
 In your terminal, `cd` into this directory then run
 
+### Mac
+
 ```bash
 make && ./sim
 ```
-(Note: If you're on windows, you'll need to use a windows based compiler)
+
+### Linux
+
+```bash
+make prof && ./sim
+```
+
+### Windows
+
+If you're on windows, tough, you'll need to use a windows based compiler
